@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Animated React To-Do List</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <style>
+    @keyframes backgroundAnimation {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-10px); }
+      40%, 80% { transform: translateX(10px); }
+    }
+
+    @keyframes pulse {
+      0% { background-color: #a15dff; }
+      50% { background-color: #8a2aff; }
+      100% { background-color: #a15dff; }
+    }
+
+    @keyframes glitterDots {
+      0% { transform: scale(0); opacity: 0; }
+      50% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(0); opacity: 0; }
+    }
+
+    @keyframes glitterStars {
+      0% { transform: scale(0); opacity: 0; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(0); opacity: 0; }
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0); }
+    }
+
+    @keyframes hoverTitle {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+      100% { transform: translateY(0); }
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(45deg, #9b59b6, #8e44ad, #d2b4de, #a569bd, #8e44ad);
+      background-size: 300% 300%;
+      animation: backgroundAnimation 15s ease infinite;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glitter-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .glitter-dots {
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 20%, rgba(150, 0, 255, 0) 60%);
+      background-size: 20px 20px;
+      animation: glitterDots 3s linear infinite;
+    }
+
+    .glitter-stars {
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 10%, rgba(255, 215, 0, 0) 50%);
+      background-size: 40px 40px;
+      animation: glitterStars 3s linear infinite;
+    }
+
+    body.dark {
+      background-color: #333;
+      color: #fff;
+    }
+
+    #root {
+      background-color: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      width: 350px;
+      text-align: center;
+      animation: bounceIn 1s ease;
+      transition: background-color 0.3s, color 0.3s;
+      position: relative;
+      z-index: 1;
+    }
+
+    #root.dark {
+      background-color: #444;
+      color: #fff;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      animation: bounceIn 1s ease, hoverTitle 2s ease-in-out infinite;
+      color: #8e44ad;
+    }
+
+    .todo-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s, transform 0.3s;
+      animation: bounceIn 0.5s ease;
+    }
+
+    .todo-item:hover {
+      background-color: #f3e5f5;
+      transform: translateY(-3px);
+      animation: shake 0.5s;
+    }
+
+    .completed {
+      text-decoration: line-through;
+      color: gray;
+    }
+
+    .high-priority {
+      border-left: 6px solid #c62828; /* Dark red */
+    }
+
+    .medium-priority {
+      border-left: 6px solid #f57f17; /* Dark orange */
+    }
+
+    .low-priority {
+      border-left: 6px solid #2e7d32; /* Dark green */
+    }
+
+    button {
+      border: none;
+      background-color: #8e44ad;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      animation: bounceIn 0.5s ease;
+    }
+
+    button:hover {
+      background-color: #6d28d9;
+      transform: scale(1.1);
+      animation: pulse 1s infinite;
+    }
+
+    input[type="text"] {
+      width: calc(100% - 50px);
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      transition: background-color 0.3s, box-shadow 0.3s, border-color 0.3s;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      animation: bounceIn 0.5s ease;
+    }
+
+    input[type="text"]:focus {
+      background-color: #e0b2ff;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      border-color: #8e44ad;
+    }
+
+    select {
+      margin-bottom: 15px;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      width: 100%;
+      transition: box-shadow 0.3s, border-color 0.3s;
+      animation: bounceIn 0.5s ease;
+    }
+
+    select:focus {
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      border-color: #8e44ad;
+    }
+
+    .theme-toggle {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 10px;
+    }
+
+    .progress-bar {
+      background-color: #f4f4f4;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      animation: bounceIn 0.5s ease;
+    }
+
+    .progress {
+      background-color: #8e44ad;
+      height: 10px;
+      width: 0;
+      transition: width 0.3s;
+    }
+
+    .form-glitter {
+      position: relative;
+    }
+
+    .form-glitter::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 10%, rgba(150, 0, 255, 0) 40%);
+      background-size: 20px 20px;
+      animation: glitterDots 3s linear infinite;
+      pointer-events: none;
+        .form-glitter::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 10%, rgba(255, 215, 0, 0) 50%);
+      background-size: 40px 40px;
+      animation: glitterStars 3s linear infinite;
+      pointer-events: none;
+    }
+
+    input[type="text"]:hover, select:hover, button:hover {
+      animation: float 1s ease-in-out infinite;
+    }
+
+    h1:hover {
+      animation: hoverTitle 1s ease-in-out infinite;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="glitter-overlay glitter-dots"></div>
+  <div class="glitter-overlay glitter-stars"></div>
+  <div id="root" class="form-glitter"></div>
+
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+  <script type="text/babel">
+    function TodoApp() {
+      const [todos, setTodos] = React.useState(() => {
+        const savedTodos = localStorage.getItem("todos");
+        return savedTodos ? JSON.parse(savedTodos) : [];
+      });
+      const [newTodo, setNewTodo] = React.useState("");
+      const [filter, setFilter] = React.useState("all");
+      const [darkTheme, setDarkTheme] = React.useState(false);
+      const [priority, setPriority] = React.useState("low");
+
+      React.useEffect(() => {
+        localStorage.setItem("todos", JSON.stringify(todos));
+      }, [todos]);
+
+      React.useEffect(() => {
+        if (darkTheme) {
+          document.body.classList.add("dark");
+        } else {
+          document.body.classList.remove("dark");
+        }
+      }, [darkTheme]);
+
+      const addTodo = () => {
+        if (newTodo.trim() !== "") {
+          setTodos([...todos, { text: newTodo, completed: false, priority }]);
+          setNewTodo("");
+        }
+      };
+
+      const toggleTodo = (index) => {
+        const updatedTodos = todos.map((todo, i) => {
+          if (i === index) {
+            return { ...todo, completed: !todo.completed };
+          }
+          return todo;
+        });
+        setTodos(updatedTodos);
+      };
+
+      const deleteTodo = (index) => {
+        const updatedTodos = todos.filter((_, i) => i !== index);
+        setTodos(updatedTodos);
+      };
+
+      const clearCompleted = () => {
+        const incompleteTodos = todos.filter((todo) => !todo.completed);
+        setTodos(incompleteTodos);
+      };
+
+      const filteredTodos = todos.filter((todo) => {
+        if (filter === "completed") {
+          return todo.completed;
+        } else if (filter === "incomplete") {
+          return !todo.completed;
+        }
+        return true;
+      });
+
+      const editTodo = (index, newText) => {
+        const updatedTodos = todos.map((todo, i) => {
+          if (i === index) {
+            return { ...todo, text: newText };
+          }
+          return todo;
+        });
+        setTodos(updatedTodos);
+      };
+
+      const completedCount = todos.filter(todo => todo.completed).length;
+      const totalCount = todos.length;
+      const progressPercentage = totalCount === 0 ? 0 : (completedCount / totalCount) * 100;
+
+      return (
+        <div className={`todo-app ${darkTheme ? "dark" : ""}`}>
+          <div className="theme-toggle">
+            <button onClick={() => setDarkTheme(!darkTheme)}>
+              {darkTheme ? <i className="fas fa-sun"></i> : <i className="fas fa-moon"></i>}
+            </button>
+          </div>
+
+          <h1 className="animate__animated animate__bounce">Animated To-Do List</h1>
+
+          <div className="progress-bar">
+            <div
+              className="progress"
+              style={{ width: `${progressPercentage}%` }}
+            ></div>
+          </div>
+
+          <input
+            type="text"
+            value={newTodo}
+            onChange={(e) => setNewTodo(e.target.value)}
+            placeholder="Add a new task"
+          />
+
+          <select onChange={(e) => setPriority(e.target.value)} value={priority}>
+            <option value="low">Low Priority</option>
+            <option value="medium">Medium Priority</option>
+            <option value="high">High Priority</option>
+          </select>
+
+          <button onClick={addTodo}>Add</button>
+
+          <select onChange={(e) => setFilter(e.target.value)} value={filter}>
+            <option value="all">All</option>
+            <option value="completed">Completed</option>
+            <option value="incomplete">Incomplete</option>
+          </select>
+
+          <ul>
+            {filteredTodos.map((todo, index) => (
+              <li
+                key={index}
+                className={`todo-item ${todo.completed ? "completed" : ""} ${todo.priority}-priority`}
+              >
+                <input
+                  type="text"
+                  value={todo.text}
+                  className={todo.completed ? "completed" : ""}
+                  onChange={(e) => editTodo(index, e.target.value)}
+                />
+
+                <button onClick={() => toggleTodo(index)}>
+                  {todo.completed ? "Undo" : "Complete"}
+                </button>
+
+                <button onClick={() => deleteTodo(index)}>Delete</button>
+              </li>
+            ))}
+          </ul>
+
+          <button onClick={clearCompleted}>Clear Completed</button>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<TodoApp />, document.getElementById("root"));
+  </script>
+</body>
+
+  </html>
